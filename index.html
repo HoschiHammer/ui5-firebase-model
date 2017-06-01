@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Firebase model - Manual test page</title>
+  <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
+          id="sap-ui-bootstrap"
+          data-sap-ui-theme="sap_belize"
+          data-sap-ui-libs="sap.m"
+          data-sap-ui-resourceroots='{
+            "openui5.community.ui.model.firebase": "./"
+          }' >
+   </script>
+   <script type="text/javascript">
+     var oCore = sap.ui.getCore();
+     oCore.attachInit(function () {
+             jQuery.sap.require("sap.ui.model.json.JSONModel");
+             jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
+     
+             var oData = {
+                name : "<enter your name>"
+             };
+             var oModel = new openui5.community.ui.model.firebase.FirebaseModel();
+             oCore.setModel(oModel);
+          
+             // Create a Text element and display it on the div with ID content
+             var oText = new sap.m.Text({
+                 text: "{/name}"
+             }); 
+            // Create an input field 
+            var oInputField = new sap.m.Input({
+                 value: "{/name}", 
+                 valueLiveUpdate: true
+            });
+            oInputField.placeAt("input_field");
+            oText.placeAt("static_text");
+       });
+  </script>
+</head>
+<body class="sapUiBody">
+  <div id="input_field"></div>
+  <div id="static_text"></div>
+</body>
+</html>
