@@ -16,7 +16,35 @@ sap.ui.define(['jquery.sap.global',
 	           * @extends sap.ui.model.ClientPropertyBinding
 	           */
 	          var FirebasePropertyBinding = ClientPropertyBinding.extend(
-                      "openui5.community.ui.model.firebase.FirebasePropertyBinding");
+                      "openui5.community.ui.model.firebase.FirebasePropertyBinding",
+                      {
+                          constructor : function(oModel, sPath, oContext, mParameters){
+			      ClientPropertyBinding.apply(this, arguments);
+			      this.oValue = null;
+                              var that = this;
+                              // Ask firebase to notify us
+                              var sResolvedPath = oModel.resolve(sPath, oContext);
+                              firebase.database().ref(sResolvedPath).on(
+                                  'value', function(oSnapshot) {
+                                      that._refOnValue(oSnapshot);
+                                  });
+		          }
+                      }
+                  );
+
+                  /**
+                   * Called whenever firebase tells us there is a new value
+                   */
+                  FirebasePropertyBinding.prototype._refOnValue = function(oSnapshot){
+                      var oValue = oSnapshot.val();
+		      if (!jQuery.sap.equal(oValue, this.oValue)) {
+			  this.oValue = oValue;
+			  this.getDataState().setValue(this.oValue);
+			  this.checkDataState();
+			  this._fireChange({reason: ChangeReason.Change});
+		      }
+                  };
+                  
                   
 	          /**
 	           * @see sap.ui.model.PropertyBinding.prototype.setValue
@@ -33,6 +61,7 @@ sap.ui.define(['jquery.sap.global',
 			  }
 		      }
 	          };
+
 
 	          /**
 	           * Check whether this Binding would provide new values and in case it changed,

@@ -32,26 +32,6 @@ sap.ui.define(
             constructor : function(oData) {
                 ClientModel.apply(this, arguments);
                 var that = this;
-                // Load firebase library code
-                jQuery.sap.includeScript(
-                    {url: "https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js"})
-                    .then( _ => {
-                        jQuery.sap.includeScript(
-                            {url: "https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"})
-                            .then( _ => {
-                                // TODO: Needs to come from model configuration
-                                var oConfig = {
-                                    apiKey: "",
-                                    authDomain: "ui5test-28e70.firebaseapp.com",
-                                    databaseURL: "https://ui5test-28e70.firebaseio.com",
-                                    projectId: "ui5test-28e70",
-                                    storageBucket: "ui5test-28e70.appspot.com",
-                                    messagingSenderId: "101209272012"
-                                };
-                                firebase.initializeApp(oConfig);
-                            });
-                    });
-                //oLoadPromise.catch(this.errorLoadingFirebase);
             },
             
             /**
@@ -68,7 +48,7 @@ sap.ui.define(
              */
             loadFirebaseDatabase : function() {
                 var oPromise = 
-                oPromise.then(this.initFirebaseDatabase);
+                        oPromise.then(this.initFirebaseDatabase);
                 return oPromise;
             },
 
@@ -97,18 +77,43 @@ sap.ui.define(
 	};
 
         /**
-	* Returns the value for the property with the given <code>sPropertyName</code>
-	*
-	* @param {string} sPath the path to the property
-	* @param {object} [oContext=null] the context which will be used to retrieve the property
-	* @type any
-	* @return the value of the property
-	* @public
-	*/
+	 * Returns the value for the property with the given <code>sPropertyName</code>
+	 *
+	 * @param {string} sPath the path to the property
+	 * @param {object} [oContext=null] the context which will be used to retrieve the property
+	 * @type any
+	 * @return the value of the property
+	 * @public
+	 */
 	FirebaseModel.prototype.getProperty = function(sPath, oContext) {
-	    return sPath; // TODO: Fixme
-
+            return null;
 	};
+
+
+        /**
+	 * Sets a new value for the given property <code>sPropertyName</code> in the model.
+	 * If the model value changed all interested parties are informed.
+	 *
+	 * @param {string}  sPath path of the property to set
+	 * @param {any}     oValue value to set the property to
+	 * @param {object} [oContext=null] the context which will be used to set the property
+	 * @param {boolean} [bAsyncUpdate] whether to update other bindings dependent on this property asynchronously
+	 * @return {boolean} true if the value was set correctly and false if errors occurred like the entry was not found.
+	 * @public
+	 */
+        FirebaseModel.prototype.setProperty = function(sPath, oValue, oContext, bAsyncUpdate) {
+            var oDB = firebase.database(),
+                sResolvedPath = this.resolve(sPath, oContext);
+
+            // return if path / context is invalid
+	    if (!sResolvedPath) {
+		return false;
+	    }
+            
+            oDB.ref(sPath).set(oValue);
+
+            return true;
+        };
 
         return FirebaseModel;
     }
