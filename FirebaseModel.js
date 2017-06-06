@@ -1,13 +1,14 @@
 /**
- * Firebase model implementation
+ * Firebase model implementation based on a JSONModel. We don't support the observe feature
+ * of the base model so that parameter will not do anything.
  *
  * @namespace
  * @name openui5.community.ui.model.firebase
  * @public
  */
 sap.ui.define(
-    ['jquery.sap.global', 'sap/ui/model/ClientModel', 'sap/ui/model/Context', './FirebasePropertyBinding'],
-    function(jQuery, ClientModel, Context, FirebasePropertyBinding) {
+    ['jquery.sap.global', 'sap/ui/model/json/JSONModel', 'sap/ui/model/Context', './FirebasePropertyBinding'],
+    function(jQuery, JSONModel, Context, FirebasePropertyBinding) {
         "use strict";
 
         /**
@@ -16,7 +17,7 @@ sap.ui.define(
          * @class
          * Model implementation for Firebase model
          *
-         * @extends sap.ui.model.ClientModel
+         * @extends sap.ui.model.JSONModel
          *
          * @author Tiago Almeida
          * @version ${version}
@@ -27,39 +28,12 @@ sap.ui.define(
          * @public
          * @alias openui5.community.ui.model.firebase
          */
-        var FirebaseModel = ClientModel.extend("openui5.community.ui.model.firebase.FirebaseModel", {
+        var FirebaseModel = JSONModel.extend("openui5.community.ui.model.firebase.FirebaseModel", {
 
             constructor : function(oData) {
-                ClientModel.apply(this, arguments);
+                JSONModel.apply(this, [oData, false]);
                 var that = this;
             },
-            
-            /**
-             * 
-             */
-            errorLoadingFirebase : function() {
-                // TODO: Fixme
-                console.log('cannot load firebase');
-            },
-
-
-            /**
-             * 
-             */
-            loadFirebaseDatabase : function() {
-                var oPromise = 
-                        oPromise.then(this.initFirebaseDatabase);
-                return oPromise;
-            },
-
-            /**
-             * 
-             */
-            initFirebaseDatabase : function() {
-                
-                
-            },
-
 
             metadata : {
                 publicMethods : []
@@ -67,54 +41,72 @@ sap.ui.define(
 
         });
 
-        /**
-	 * @see sap.ui.model.Model.prototype.bindProperty
-	 *
-	 */
-	FirebaseModel.prototype.bindProperty = function(sPath, oContext, mParameters) {
-	    var oBinding = new FirebasePropertyBinding(this, sPath, oContext, mParameters);
-	    return oBinding;
-	};
 
         /**
-	 * Returns the value for the property with the given <code>sPropertyName</code>
-	 *
-	 * @param {string} sPath the path to the property
-	 * @param {object} [oContext=null] the context which will be used to retrieve the property
-	 * @type any
-	 * @return the value of the property
-	 * @public
-	 */
-	FirebaseModel.prototype.getProperty = function(sPath, oContext) {
-            return null;
-	};
+         * Sets the data to the model.
+         *
+         * @param {object} oData the data to set on the model
+         * @param {boolean} [bMerge=false] whether to merge the data instead of replacing it
+         *
+         * @public
+         */
+        FirebaseModel.prototype.setData = function(oData, bMerge){
+            JSONModel.prototype.setData.apply(this, arguments);
+            // Set data on firebase db
+            var oDB = firebase.database();
+            oDB.ref("/").set(JSONModel.prototype.getProperty.apply(this,["/"]));
+        },
+        
+        /**
+         * @see sap.ui.model.json.JSONModel.prototype.bindProperty
+         * @override
+         */
+        FirebaseModel.prototype.bindProperty = function(sPath, oContext, mParameters) {
+            var oBinding = new FirebasePropertyBinding(this, sPath, oContext, mParameters);
+            return oBinding;
+        };
+
+        /**
+	   * @see sap.ui.model.json.JSONModel.prototype.bindList
+	   * @override
+	   */
+	  FirebaseModel.prototype.bindList = function(sPath, oContext, aSorters, aFilters, mParameters) {
+		var oBinding = new FirebaseListBinding(this, sPath, oContext, aSorters, aFilters, mParameters);
+		return oBinding;
+	  };
 
 
         /**
-	 * Sets a new value for the given property <code>sPropertyName</code> in the model.
-	 * If the model value changed all interested parties are informed.
-	 *
-	 * @param {string}  sPath path of the property to set
-	 * @param {any}     oValue value to set the property to
-	 * @param {object} [oContext=null] the context which will be used to set the property
-	 * @param {boolean} [bAsyncUpdate] whether to update other bindings dependent on this property asynchronously
-	 * @return {boolean} true if the value was set correctly and false if errors occurred like the entry was not found.
-	 * @public
-	 */
+         * Sets a new value for the given property <code>sPropertyName</code> in the model.
+         * If the model value changed all interested parties are informed.
+         *
+         * @param {string}  sPath path of the property to set
+         * @param {any}     oValue value to set the property to
+         * @param {object} [oContext=null] the context which will be used to set the property
+         * @param {boolean} [bAsyncUpdate] whether to update other bindings dependent on this property asynchronously
+         * @return {boolean} true if the value was set correctly and false if errors occurred like the entry was not found.
+         * @public
+         */
         FirebaseModel.prototype.setProperty = function(sPath, oValue, oContext, bAsyncUpdate) {
+            var bSuper = JSONModel.prototype.setProperty.apply(this, arguments);
+
+            if (!bSuper) {
+                return false;
+            }
+
             var oDB = firebase.database(),
                 sResolvedPath = this.resolve(sPath, oContext);
-
-            // return if path / context is invalid
-	    if (!sResolvedPath) {
-		return false;
-	    }
             
-            oDB.ref(sPath).set(oValue);
+            // return if path / context is invalid
+            if (!sResolvedPath) {
+                return false;
+            }
+            
+            oDB.ref(sResolvedPath).set(oValue);
 
             return true;
         };
-
+        
         return FirebaseModel;
     }
 );

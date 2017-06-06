@@ -43,23 +43,26 @@
       jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
       
       var oData = {
-      name : "<enter your name>"
-        };
-        var oModel = new openui5.community.ui.model.firebase.FirebaseModel();
-        oCore.setModel(oModel);
+        name : "<enter your name>",
+        address: {
+          street : "some street"
+        }
+      };
+      var oModel = new openui5.community.ui.model.firebase.FirebaseModel(oData);
+      oCore.setModel(oModel);
         
-        // Create a Text element and display it on the div with ID content
-        var oText = new sap.m.Text({
-        text: "{/name}"
-        }); 
-        // Create an input field 
-        var oInputField = new sap.m.Input({
-        value: "{/name}", 
+      // Create a Text element and display it on the div with ID content
+      var oText = new sap.m.Text({
+        text: "{/address/street}"
+      }); 
+      // Create an input field 
+      var oInputField = new sap.m.Input({
+        value: "{/address/street}", 
         valueLiveUpdate: true
-        });
-        oInputField.placeAt("input_field");
-        oText.placeAt("static_text");
-        });
+      });
+      oInputField.placeAt("input_field");
+      oText.placeAt("static_text");
+    });
     </script>
   </head>
   <body class="sapUiBody">
