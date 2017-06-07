@@ -1,72 +1,108 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Firebase model - Manual test page</title>
-    <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"></script>
-    <script>
-      // Initialize Firebase
-      // TODO: Replace with your project's customized code snippet
-      var config = {
-        apiKey: "AIzaSyC_s5-cu9GaYwDGD1DH5HtE_-IwyrrH11Y",
-        authDomain: "ui5test-28e70.firebaseapp.com",
-        databaseURL: "https://ui5test-28e70.firebaseio.com",
-        projectId: "ui5test-28e70",
-        storageBucket: "ui5test-28e70.appspot.com",
-        messagingSenderId: "101209272012"
-      };
-      firebase.initializeApp(config);
-    </script>
-    <script type="text/javascript">
-      firebase.auth().signInAnonymously().catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // ...
-      });
-    </script>
-    <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
-            id="sap-ui-bootstrap"
-            data-sap-ui-theme="sap_belize"
-            data-sap-ui-libs="sap.m"
-            data-sap-ui-resourceroots='{
-            "openui5.community.ui.model.firebase": "./"
-            }' >
-    </script>
-    <script type="text/javascript">
-      var oCore = sap.ui.getCore();
-      oCore.attachInit(function () {
-      jQuery.sap.require("sap.ui.model.json.JSONModel");
-      jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
-      
-      var oData = {
-        name : "<enter your name>",
-        address: {
-          street : "some street"
-        }
-      };
-      var oModel = new openui5.community.ui.model.firebase.FirebaseModel(oData);
-      oCore.setModel(oModel);
-        
-      // Create a Text element and display it on the div with ID content
-      var oText = new sap.m.Text({
-        text: "{/address/street}"
-      }); 
-      // Create an input field 
-      var oInputField = new sap.m.Input({
-        value: "{/address/street}", 
-        valueLiveUpdate: true
-      });
-      oInputField.placeAt("input_field");
-      oText.placeAt("static_text");
-    });
-    </script>
-  </head>
-  <body class="sapUiBody">
-    <div id="input_field"></div>
-    <div id="static_text"></div>
-  </body>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Firebase model - Manual test page</title>
+        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"></script>
+        <script>
+         // Initialize Firebase
+         // TODO: Replace with your project's customized code snippet
+         var config = {
+             apiKey: "AIzaSyC_s5-cu9GaYwDGD1DH5HtE_-IwyrrH11Y",
+             authDomain: "ui5test-28e70.firebaseapp.com",
+             databaseURL: "https://ui5test-28e70.firebaseio.com",
+             projectId: "ui5test-28e70",
+             storageBucket: "ui5test-28e70.appspot.com",
+             messagingSenderId: "101209272012"
+         };
+         firebase.initializeApp(config);
+        </script>
+        <script type="text/javascript">
+         firebase.auth().signInAnonymously().catch(function(error) {
+             // Handle Errors here.
+             var errorCode = error.code;
+             var errorMessage = error.message;
+             // ...
+         });
+        </script>
+        <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
+                id="sap-ui-bootstrap"
+                data-sap-ui-theme="sap_belize"
+                data-sap-ui-libs="sap.m"
+                data-sap-ui-resourceroots='{
+                     "openui5.community.ui.model.firebase": "./"
+                     }' >
+        </script>
+        <script type="text/javascript">
+         var oCore = sap.ui.getCore();
+         oCore.attachInit(function () {
+             jQuery.sap.require("sap.ui.model.json.JSONModel");
+             jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
+             
+             var oData = {
+                 name : "<enter your name>",
+                 items : [
+                     {name: "john"},
+                     {name: "jane"}
+                 ]
+             };
+
+             var fAddEntry = function() {
+                 var oModel = sap.ui.getCore().getModel();
+                 var aItems = oModel.getProperty('/items') || [];
+                 aItems.push({name:'new-item'});
+                 oModel.setProperty('/items', aItems);
+             };
+             
+             var oModel = new openui5.community.ui.model.firebase.FirebaseModel();
+             oCore.setModel(oModel);
+             
+             // Create a Text element and display it on the div with ID content
+             var oText = new sap.m.Text({
+                 text: "{/name}"
+             }); 
+             oText.placeAt("static_text");
+             
+             // Create an input field 
+             var oInputField = new sap.m.Input({
+                 value: "{/name}", 
+                 valueLiveUpdate: true
+             });
+             oInputField.placeAt("input_field");
+
+             // List
+             var oRowInputField = new sap.m.Input({
+                 value: "{name}", 
+                 valueLiveUpdate: true
+             });
+
+             var oListRow = new sap.m.CustomListItem({
+                 content: oRowInputField
+             });
+
+             var oButton = new sap.m.Button({
+                 press: fAddEntry,
+                 text: "Add Entry"
+             });
+             oButton.placeAt('add_entry');
+             
+             var oList = new sap.m.List({
+                 items: {
+                     path: "/items",
+                     template: oListRow
+                 }
+             });
+             oList.placeAt("list");  
+         });
+        </script>
+    </head>
+    <body class="sapUiBody">
+        <div id="input_field"></div>
+        <div id="static_text"></div>
+        <div id="add_entry"></div>
+        <div id="list"></div>
+    </body>
 </html>

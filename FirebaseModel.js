@@ -1,5 +1,5 @@
 /**
- * Firebase model implementation based on a JSONModel. We don't support the observe feature
+ * Firebase model implementation based on a JSONModel. We don"t support the observe feature
  * of the base model so that parameter will not do anything.
  *
  * @namespace
@@ -7,8 +7,13 @@
  * @public
  */
 sap.ui.define(
-    ['jquery.sap.global', 'sap/ui/model/json/JSONModel', 'sap/ui/model/Context', './FirebasePropertyBinding'],
-    function(jQuery, JSONModel, Context, FirebasePropertyBinding) {
+    ["jquery.sap.global",
+     "sap/ui/model/json/JSONModel",
+     "sap/ui/model/Context",
+     "./FirebasePropertyBinding",
+     "./FirebaseListBinding"
+    ],
+    function(jQuery, JSONModel, Context, FirebasePropertyBinding, FirebaseListBinding) {
         "use strict";
 
         /**
@@ -33,6 +38,10 @@ sap.ui.define(
             constructor : function(oData) {
                 JSONModel.apply(this, [oData, false]);
                 var that = this;
+                firebase.database().ref("/").on(
+                    "value", function(oSnapshot) {
+                        that._setDataJsonModel(oSnapshot.val());
+                    });
             },
 
             metadata : {
@@ -42,6 +51,19 @@ sap.ui.define(
         });
 
 
+        /**
+         * Sets data on the json model, not on firebase. 
+         *
+         * @param {object} oData the data to set on the model
+         * @return {object} the return value of JSONModel.setData
+         *
+         * @private
+         */
+        FirebaseModel.prototype._setDataJsonModel = function(oData) {
+            return JSONModel.prototype.setData.apply(this, [oData, false]);
+        };
+
+        
         /**
          * Sets the data to the model.
          *
@@ -55,7 +77,7 @@ sap.ui.define(
             // Set data on firebase db
             var oDB = firebase.database();
             oDB.ref("/").set(JSONModel.prototype.getProperty.apply(this,["/"]));
-        },
+        };
         
         /**
          * @see sap.ui.model.json.JSONModel.prototype.bindProperty

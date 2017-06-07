@@ -19,7 +19,7 @@ sap.ui.define(['jquery.sap.global', 'sap/ui/model/ChangeReason', 'sap/ui/model/j
                    */
                   var FirebaseListBinding = JSONListBinding.extend(
                       "openui5.community.ui.model.firebase.FirebaseModel.FirebaseListBinding");
-
+                  
                   return FirebaseListBinding;
 
               });
