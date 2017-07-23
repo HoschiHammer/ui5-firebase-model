@@ -35,9 +35,13 @@ sap.ui.define(
          */
         var FirebaseModel = JSONModel.extend("openui5.community.ui.model.firebase.FirebaseModel", {
 
-            constructor : function(oData) {
+            constructor : function(oData, oFBConfig) {
                 JSONModel.apply(this, [oData, false]);
                 var that = this;
+				// Initialize firebase if not done yet
+				if (!firebase.apps.length && oFBConfig) {
+					firebase.initializeApp(oFBConfig);
+				}
                 firebase.database().ref("/").on(
                     "value", function(oSnapshot) {
                         that._setDataJsonModel(oSnapshot.val());
@@ -65,6 +69,18 @@ sap.ui.define(
 
         
         /**
+         * Returns the firebase object so you can interact with it
+         * directly.         
+         * @return {object} the firebase object
+         *
+         * @public
+         */
+        FirebaseModel.prototype.getFirebase = function() {
+            return firebase;
+        };
+        
+        
+        /**
          * Sets the data to the model.
          *
          * @param {object} oData the data to set on the model
@@ -89,13 +105,13 @@ sap.ui.define(
         };
 
         /**
-	   * @see sap.ui.model.json.JSONModel.prototype.bindList
-	   * @override
-	   */
-	  FirebaseModel.prototype.bindList = function(sPath, oContext, aSorters, aFilters, mParameters) {
-		var oBinding = new FirebaseListBinding(this, sPath, oContext, aSorters, aFilters, mParameters);
-		return oBinding;
-	  };
+       * @see sap.ui.model.json.JSONModel.prototype.bindList
+       * @override
+       */
+      FirebaseModel.prototype.bindList = function(sPath, oContext, aSorters, aFilters, mParameters) {
+        var oBinding = new FirebaseListBinding(this, sPath, oContext, aSorters, aFilters, mParameters);
+        return oBinding;
+      };
 
 
         /**
