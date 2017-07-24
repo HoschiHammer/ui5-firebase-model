@@ -15,21 +15,23 @@ sap.ui.define(['jquery.sap.global',
 	             * @extends sap.ui.model.ClientPropertyBinding
 	             */
 	            var FirebasePropertyBinding = ClientPropertyBinding.extend(
-                      "openui5.community.ui.model.firebase.FirebasePropertyBinding",
-                      {
-                          constructor : function(oModel, sPath, oContext, mParameters){
-			            ClientPropertyBinding.apply(this, arguments);
-			            this.oValue = null;
-                              var that = this;
-                              // Ask firebase to notify us
-                              var sResolvedPath = oModel.resolve(sPath, oContext);
-                              firebase.database().ref(sResolvedPath).on(
-                                  'value', function(oSnapshot) {
-                                      that._refOnValue(oSnapshot);
-                                  });
-		              }
-                      }
-                  );
+                    "openui5.community.ui.model.firebase.FirebasePropertyBinding",
+                    {
+                        constructor : function(oModel, sPath, oContext, mParameters){
+			                ClientPropertyBinding.apply(this, arguments);
+			                this.oValue = null;
+                            var that = this;
+                            // Ask firebase to notify us
+                            var sResolvedPath = oModel.resolve(sPath, oContext);
+                            oModel.getFirebasePromise().then(function(firebase){
+                                firebase.database().ref(sResolvedPath).on(
+                                    'value', function(oSnapshot) {
+                                        that._refOnValue(oSnapshot);
+                                    });
+                            });
+		                }
+                    }
+                );
                   
                   /**
                    * Called whenever firebase tells us there is a new value

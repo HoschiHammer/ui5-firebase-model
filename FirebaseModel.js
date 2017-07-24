@@ -11,9 +11,15 @@ sap.ui.define(
      "sap/ui/model/json/JSONModel",
      "sap/ui/model/Context",
      "./FirebasePropertyBinding",
-     "./FirebaseListBinding"
+     "./FirebaseListBinding",
+     "./Util"
     ],
-    function(jQuery, JSONModel, Context, FirebasePropertyBinding, FirebaseListBinding) {
+    function(jQuery,
+             JSONModel,
+             Context,
+             FirebasePropertyBinding,
+             FirebaseListBinding,
+             Util) {
         "use strict";
 
         /**
@@ -38,14 +44,34 @@ sap.ui.define(
             constructor : function(oData, oFBConfig) {
                 JSONModel.apply(this, [oData, false]);
                 var that = this;
-				// Initialize firebase if not done yet
-				if (!firebase.apps.length && oFBConfig) {
-					firebase.initializeApp(oFBConfig);
-				}
-                firebase.database().ref("/").on(
-                    "value", function(oSnapshot) {
-                        that._setDataJsonModel(oSnapshot.val());
-                    });
+                // Create a firebase promise which resolves when it is fully loaded.
+                this._firebasePromise = new Promise(function(resolve, reject) {
+                    if (!window.firebase) {
+                        var oFBScript = Util.getScript("https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js");
+                        oFBScript.then(function () {
+                            Util.getScript([
+                                "https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js",
+                                "https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"]).then(
+                                    function(){
+                                        _initFirebase();
+                                        resolve(firebase);
+                                    }, function(){
+                                        reject(Error("Cannot load firebase"));
+                                    });
+                        });
+                    }
+                });
+                
+                var _initFirebase = function () {
+                    // Initialize firebase if not done yet
+				    if (!firebase.apps.length && oFBConfig) {
+					    firebase.initializeApp(oFBConfig);
+				    }
+                    firebase.database().ref("/").on(
+                        "value", function(oSnapshot) {
+                            that._setDataJsonModel(oSnapshot.val());
+                        });
+                };
             },
 
             metadata : {
@@ -75,8 +101,8 @@ sap.ui.define(
          *
          * @public
          */
-        FirebaseModel.prototype.getFirebase = function() {
-            return firebase;
+        FirebaseModel.prototype.getFirebasePromise = function() {
+            return this._firebasePromise;
         };
         
         
