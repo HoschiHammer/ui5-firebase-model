@@ -3,6 +3,9 @@ An *UI5 model backed by a Firebase realtime database from Google.
 
 [![Basic demo video](https://img.youtube.com/vi/MsanBYsAeR4/0.jpg)](https://www.youtube.com/watch?v=MsanBYsAeR4)
 
+# Please check the dev branch. No master release yet. Thanks
+
+
 ## Why?
 The Firebase realtime database is awesome. It allows painless realtime updates between all clients using the same database.
 Creating a solid UI5 model backed by a firebase DB provides some nice capabilities to UI5 apps:
