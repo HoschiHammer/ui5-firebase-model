@@ -1,10 +1,5 @@
-/**
- * Firebase model implementation based on a JSONModel. We don"t support the observe feature
- * of the base model so that parameter will not do anything.
- *
- * @namespace
- * @name openui5.community.ui.model.firebase
- * @public
+/*!
+ * ${copyright}
  */
 sap.ui.define(
     ["jquery.sap.global",
@@ -30,16 +25,10 @@ sap.ui.define(
          *
          * @extends sap.ui.model.JSONModel
          *
-         * @author Tiago Almeida
          * @version ${version}
          *
-         * @param {object} oData either the URL where to load the JSON from or a JS object
-         * @param {boolean} bObserve whether to observe the JSON data for property changes (experimental)
-         * @constructor
-         * @public
-         * @alias openui5.community.ui.model.firebase
          */
-        var FirebaseModel = JSONModel.extend("openui5.community.ui.model.firebase.FirebaseModel", {
+        var FirebaseModel = JSONModel.extend("openui5.community.model.firebase.FirebaseModel", {
 
             constructor : function(oData, oFBConfig) {
                 JSONModel.apply(this, [oData, false]);
@@ -67,7 +56,7 @@ sap.ui.define(
 				    if (!firebase.apps.length && oFBConfig) {
 					    firebase.initializeApp(oFBConfig);
 				    }
-                    firebase.database().ref("/").on(
+                    firebase.database().ref("/").once(
                         "value", function(oSnapshot) {
                             that._setDataJsonModel(oSnapshot.val());
                         });

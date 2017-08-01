@@ -4,19 +4,23 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
         <title>Firebase model - Manual test page</title>
-        <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
+        <base href="../../../../../">
+	      <!--[if lte IE 9]><script>
+	          (function() {
+		        var baseTag = document.getElementsByTagName('base')[0];
+		        baseTag.href = baseTag.href;
+	          })();
+	          </script><![endif]-->
+        <script src="resources/sap-ui-core.js"
                 id="sap-ui-bootstrap"
-                data-sap-ui-theme="sap_belize"
-                data-sap-ui-libs="sap.m"
-				data-sap-ui-resourceroots='{
-                     "openui5.community.ui.model.firebase": "./"
-                     }' >
+                data-sap-ui-libs="sap.m,openui5.community.model.firebase">
         </script>
+        
         <script type="text/javascript">
          var oCore = sap.ui.getCore();
          oCore.attachInit(function () {
              jQuery.sap.require("sap.ui.model.json.JSONModel");
-             jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
+             jQuery.sap.require("openui5.community.model.firebase.FirebaseModel");
 
              // firebase config
              var config = {
@@ -43,7 +47,7 @@
                  oModel.setProperty('/items', aItems);
              };
              
-             var oModel = new openui5.community.ui.model.firebase.FirebaseModel(
+             var oModel = new openui5.community.model.firebase.FirebaseModel(
                  null, config);
              // Login to firebase
              oModel.getFirebasePromise().then(function(firebase){

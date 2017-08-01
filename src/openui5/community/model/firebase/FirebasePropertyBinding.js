@@ -1,3 +1,6 @@
+/*!
+ * ${copyright}
+ */
 sap.ui.define(['jquery.sap.global',
                'sap/ui/model/ChangeReason',
                'sap/ui/model/ClientPropertyBinding',
@@ -15,7 +18,7 @@ sap.ui.define(['jquery.sap.global',
 	             * @extends sap.ui.model.ClientPropertyBinding
 	             */
 	            var FirebasePropertyBinding = ClientPropertyBinding.extend(
-                    "openui5.community.ui.model.firebase.FirebasePropertyBinding",
+                    "openui5.community.model.firebase.FirebasePropertyBinding",
                     {
                         constructor : function(oModel, sPath, oContext, mParameters){
 			                ClientPropertyBinding.apply(this, arguments);
