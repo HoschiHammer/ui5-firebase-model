@@ -1,7 +1,7 @@
 {
   "name": "ui5-firebase-model",
   "description": "Experimental: An OpenUI5 model which uses a firebase realtime database as its backend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/jumpifzero/ui5-firebase-model"
