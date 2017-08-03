@@ -1,5 +1,5 @@
 {
-  "name": "UI5-Firebase-Model",
+  "name": "ui5-firebase-model",
   "description": "Experimental: An OpenUI5 model which uses a firebase realtime database as its backend",
   "private": false,
   "dependencies": {
