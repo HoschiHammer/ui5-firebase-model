@@ -4,43 +4,33 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
         <title>Firebase model - Manual test page</title>
-        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"></script>
-        <script>
-         // Initialize Firebase
-         // TODO: Replace with your project's customized code snippet
-         var config = {
-             apiKey: "AIzaSyC_s5-cu9GaYwDGD1DH5HtE_-IwyrrH11Y",
-             authDomain: "ui5test-28e70.firebaseapp.com",
-             databaseURL: "https://ui5test-28e70.firebaseio.com",
-             projectId: "ui5test-28e70",
-             storageBucket: "ui5test-28e70.appspot.com",
-             messagingSenderId: "101209272012"
-         };
-         firebase.initializeApp(config);
-        </script>
-        <script type="text/javascript">
-         firebase.auth().signInAnonymously().catch(function(error) {
-             // Handle Errors here.
-             var errorCode = error.code;
-             var errorMessage = error.message;
-             // ...
-         });
-        </script>
-        <script src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
+        <base href="../../../../../">
+	      <!--[if lte IE 9]><script>
+	          (function() {
+		        var baseTag = document.getElementsByTagName('base')[0];
+		        baseTag.href = baseTag.href;
+	          })();
+	          </script><![endif]-->
+        <script src="resources/sap-ui-core.js"
                 id="sap-ui-bootstrap"
-                data-sap-ui-theme="sap_belize"
-                data-sap-ui-libs="sap.m"
-                data-sap-ui-resourceroots='{
-                     "openui5.community.ui.model.firebase": "./"
-                     }' >
+                data-sap-ui-libs="sap.m,openui5.community.model.firebase">
         </script>
+        
         <script type="text/javascript">
          var oCore = sap.ui.getCore();
          oCore.attachInit(function () {
              jQuery.sap.require("sap.ui.model.json.JSONModel");
-             jQuery.sap.require("openui5.community.ui.model.firebase.FirebaseModel");
+             jQuery.sap.require("openui5.community.model.firebase.FirebaseModel");
+
+             // firebase config
+             var config = {
+                 apiKey: "AIzaSyC_s5-cu9GaYwDGD1DH5HtE_-IwyrrH11Y",
+                 authDomain: "ui5test-28e70.firebaseapp.com",
+                 databaseURL: "https://ui5test-28e70.firebaseio.com",
+                 projectId: "ui5test-28e70",
+                 storageBucket: "ui5test-28e70.appspot.com",
+                 messagingSenderId: "101209272012"
+             };
              
              var oData = {
                  name : "<enter your name>",
@@ -57,7 +47,17 @@
                  oModel.setProperty('/items', aItems);
              };
              
-             var oModel = new openui5.community.ui.model.firebase.FirebaseModel();
+             var oModel = new openui5.community.model.firebase.FirebaseModel(
+                 null, config);
+             // Login to firebase
+             oModel.getFirebasePromise().then(function(firebase){
+                 firebase.auth().signInAnonymously().catch(function(error) {
+                     // Handle Errors here.
+                     var errorCode = error.code;
+                     var errorMessage = error.message;
+                     // ...
+                 });
+             });
              oCore.setModel(oModel);
              
              // Create a Text element and display it on the div with ID content
