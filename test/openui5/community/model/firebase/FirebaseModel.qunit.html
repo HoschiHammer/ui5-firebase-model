@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+
+<!--
+     WORK IN PROGRESS
+     =================
+
+     Tests for openui5.community.model.firebase.FirebaseModel
+
+     TODO:
+     Should this be pointing to the CDN ??
+     At the moment the tests are using a real firebase db. Ideally it should be mocked. Maybe with https://github.com/urish/firebase-server
+     What this means is that if you run these tests they will fail because I don't keep the real DB available 24/7.
+     If you want to run these tests, create your own DB, allow anonymous login and then replace the config object in the initialization code.
+     I know this is not ideal :/
+
+     https://github.com/SAP/openui5/blob/6346187bf7cf52935054f71effbc6ad3bf5aba10/src/sap.ui.core/test/sap/ui/core/qunit/JSONModel.qunit.html
+
+   -->
+
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- Initialization -->
+        <script src="https://openui5.hana.ondemand.com/1.48.1/resources/sap-ui-core.js"
+                id="sap-ui-bootstrap"
+	            data-sap-ui-theme="sap_bluecrystal"
+                data-sap-ui-libs="sap.m"
+                data-sap-ui-resourceroots='{
+                     "firebase": "../../../../../src/openui5/community/model/firebase/",
+                     "test.unit": "./"}'>
+	    </script>
+        <script>
+		 jQuery.sap.require("sap.ui.qunit.qunit-css");
+		 jQuery.sap.require("sap.ui.thirdparty.qunit");
+		 jQuery.sap.require("sap.ui.qunit.qunit-junit");
+		 jQuery.sap.require("sap.ui.qunit.qunit-coverage");
+		 // model tests
+		 jQuery.sap.require("test.unit.FirebaseModelTests");
+	    </script>
+    </head>
+    <body>
+        <div id="content"></div>
+        <h1 id="qunit-header">FirebaseModel Tests</h1>
+        <h2 id="qunit-banner"></h2>
+        <h2 id="qunit-userAgent"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <ol id="qunit-tests"></ol>
+        <div id="qunit-fixture"></div>
+    </body>
+</html>

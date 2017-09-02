@@ -82,3 +82,19 @@ https://firebase.google.com/docs/reference/js/index-all
                 } else {
                     _initFirebase();
                 }
+
+
+<link rel="stylesheet"
+	          href="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/thirdparty/qunit.css" type="text/css"
+	          media="screen" />
+        <script
+	        src="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/thirdparty/qunit.js"></script>
+        <script
+	        src="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/qunit/qunit-junit.js"></script>
+        <!--<script
+	         src="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/qunit/QUnitUtils.js"></script>
+             <script src="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/thirdparty/sinon.js"></script>-->
+        <!--[if IE]>
+	        <script src="resources/sap/ui/thirdparty/sinon-ie.js"></script>
+        <![endif]-->
+        <!--<script src="https://openui5.hana.ondemand.com/1.48.1/resources/sap/ui/thirdparty/sinon-qunit.js"></script>-->
