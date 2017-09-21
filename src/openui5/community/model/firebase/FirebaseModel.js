@@ -52,12 +52,15 @@ sap.ui.define(
                 });
 
                 var _initFirebase = function () {
+                    jQuery.sap.log.info("FirebaseModel::_initFirebase::called");
                     // Initialize firebase if not done yet
 				    if (!firebase.apps.length && oFBConfig) {
+                        jQuery.sap.log.info("FirebaseModel::initFirebase::Calling initializeApp on firebase");
 					    firebase.initializeApp(oFBConfig);
 				    }
                     firebase.database().ref("/").once(
                         "value", function(oSnapshot) {
+                            jQuery.sap.log.info("FirebaseModel::initFirebase::Loading initial model data");
                             that._setDataJsonModel(oSnapshot.val());
                         });
                 };
