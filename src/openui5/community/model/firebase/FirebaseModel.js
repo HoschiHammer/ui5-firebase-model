@@ -1,13 +1,17 @@
 /*!
  * ${copyright}
  */
+jQuery.sap.registerModulePath("google.firebase", "https://www.gstatic.com/firebasejs/4.3.1/");
 sap.ui.define(
     ["jquery.sap.global",
      "sap/ui/model/json/JSONModel",
      "sap/ui/model/Context",
      "./FirebasePropertyBinding",
      "./FirebaseListBinding",
-     "./Util"
+     "./firebase-app",
+     "./firebase-auth",
+     "./firebase-database"//,
+     //"./Util"
     ],
     function(jQuery,
              JSONModel,
@@ -30,26 +34,32 @@ sap.ui.define(
          */
         var FirebaseModel = JSONModel.extend("openui5.community.model.firebase.FirebaseModel", {
 
-            constructor : function(oData, oFBConfig) {
-                JSONModel.apply(this, [oData, false]);
+            constructor : function(oFBConfig, oData) {
+                if (oData !== undefined) {
+                    JSONModel.apply(this, [oData, false]);
+                } else {
+                    JSONModel.apply(this);
+                }
                 var that = this;
-                // Create a firebase promise which resolves when it is fully loaded.
-                this._firebasePromise = new Promise(function(resolve, reject) {
-                    if (!window.firebase) {
-                        var oFBScript = Util.getScript("https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js");
-                        oFBScript.then(function () {
-                            Util.getScript([
-                                "https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js",
-                                "https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"]).then(
-                                    function(){
-                                        _initFirebase();
-                                        resolve(firebase);
-                                    }, function(){
-                                        reject(Error("Cannot load firebase"));
-                                    });
-                        });
-                    }
-                });
+
+                // // Create a firebase promise which resolves when it is fully loaded.
+                // this._firebasePromise = new Promise(function(resolve, reject) {
+                //     if (!window.firebase) {
+                //         jQuery.sap.log.error("FirebaseModel::contructor::Firebase has not been loaded.");
+                //         // var oFBScript = Util.getScript("https://www.gstatic.com/firebasejs/4.1.1/firebase-app.js");
+                //         // oFBScript.then(function () {
+                //         //     Util.getScript([
+                //         //         "https://www.gstatic.com/firebasejs/4.1.1/firebase-auth.js",
+                //         //         "https://www.gstatic.com/firebasejs/4.1.1/firebase-database.js"]).then(
+                //         //             function(){
+                //         //                 _initFirebase();
+                //         //                 resolve(firebase);
+                //         //             }, function(){
+                //         //                 reject(Error("Cannot load firebase"));
+                //         //             });
+                //         // });
+                //     }
+                // });
 
                 var _initFirebase = function () {
                     jQuery.sap.log.info("FirebaseModel::_initFirebase::called");
@@ -64,6 +74,18 @@ sap.ui.define(
                             that._setDataJsonModel(oSnapshot.val());
                         });
                 };
+
+                _initFirebase();
+                this._firebasePromise = new Promise(function(resolve, reject) {
+                    if (window.firebase) {
+                        resolve(window.firebase);
+                    } else {
+                        var sReason = "FirebaseModel::constructor::Cannot resolve the firebase promise";
+                        reject(new Error(sReason));
+                        jQuery.sap.log.error(sReason);
+                    }
+                });
+
             },
 
             metadata : {
@@ -87,9 +109,9 @@ sap.ui.define(
 
 
         /**
-         * Returns the firebase object so you can interact with it
-         * directly.
-         * @return {object} the firebase object
+         * Returns a Promise to the firebase object so you can interact with it
+         * directly. - Do not use
+         * @return {object} the firebase object Promise
          *
          * @public
          */
@@ -97,6 +119,17 @@ sap.ui.define(
             return this._firebasePromise;
         };
 
+
+        /**
+         * Returns a the firebase object so you can interact with it
+         * directly.
+         * @return {object} the firebase object
+         *
+         * @public
+         */
+        FirebaseModel.prototype.getFirebase = function() {
+            return window.firebase;
+        };
 
         /**
          * Sets the data to the model.
