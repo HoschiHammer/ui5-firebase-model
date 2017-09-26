@@ -1,0 +1,68 @@
+{
+	"_version": "1.5.0",
+	"sap.app": {
+		"id": "test.unit.TestApp",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"applicationVersion": {
+			"version": "1.0.0"
+		},
+		"title": "Test Title",
+		"description": "Test Description",
+		"resources": "resources.json",
+		"ach": "ach"
+	},
+
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {
+			"icon": "",
+			"favIcon": "",
+			"phone": "",
+			"phone@2": "",
+			"tablet": "",
+			"tablet@2": ""
+		},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		},
+		"supportedThemes": [
+			"sap_belize"
+		]
+	},
+
+	"sap.ui5": {
+		"dependencies": {
+			"minUI5Version": "1.30.0",
+			"libs": {
+				"sap.ui.core": {},
+				"sap.m": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"models": {
+            "": {
+                "type": "openui5/.community.model.firebase.FirebaseModel",
+                "settings": {
+					"apiKey": "AIzaSyDwzmJRS2NNjL7QUe4VxS7FEwKdyAL7ZRk",
+                    "authDomain": "bf-ui5-firebase-show-n-tell.firebaseapp.com",
+                    "databaseURL": "https://bf-ui5-firebase-show-n-tell.firebaseio.com",
+                    "projectId": "bf-ui5-firebase-show-n-tell",
+                    "storageBucket": "bf-ui5-firebase-show-n-tell.appspot.com",
+                    "messagingSenderId": "842385210289"
+				}
+            },
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "test.unit.TestApp.i18n.i18n"
+				}
+			}
+		}
+	}
+}

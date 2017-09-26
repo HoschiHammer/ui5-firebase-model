@@ -20,8 +20,9 @@ sap.ui.require(
         jQuery.sap.log.setLevel(jQuery.sap.log.LogLevel.ALL);
 
 		QUnit.module("Firebase Model Tests", {
-			setup: function () {
-
+			beforeEach: function () {
+                // Instruct Qunit to wait on the initialization...
+                var done = assert.async();
                 // Instantiate a model with null data.
                 oModel = new FirebaseModel(config);
                 // Login to the firebase db as anonymous
@@ -33,17 +34,11 @@ sap.ui.require(
                     // TODO: Do something. Panic is acceptable
                 });
 
-                // // Instantiate a second model with null data.
-                // oModel = new FirebaseModel(config);
-                // // Login to the firebase db as anonymous
-                // oModel.getFirebasePromise().then(function(firebase){
-                //     firebase.auth().signInAnonymously().catch(function(error) {
-                //         // Handle Errors here.
-                //         var errorCode = error.code;
-                //         var errorMessage = error.message;
-                //         // TODO: Do something. Panic is acceptable
-                //     });
-                // });
+                // Instantiate a second model with null data.
+                oModel2 = new FirebaseModel(config);
+                setTimeout(function(){ // TODO: How to wait until both models initialized??
+                    done();
+                }, 2000);
 
 			},
 			afterEach: function () {
@@ -51,6 +46,7 @@ sap.ui.require(
 		});
 
 
+        // ======================================================================
         QUnit.test("Test setProperty retains the value", function(assert) {
             // Read directly from firebase to make sure the data is there as well
             // This is async so we need to tell QUnit of this
@@ -65,18 +61,28 @@ sap.ui.require(
         });
 
 
-        // QUnit.test("Test two models are synced", function(assert) {
-        //     var done = assert.async();
-        //     oModel.getFirebasePromise().then(function(firebase){
-        //         firebase.database().ref('/age').once('value').then(function(snapshot) {
-        //             // The value has changed. Let's check via oModel2 if w get the same value
-        //             var value2 = oModel2.getProperty("/age");
-        //             assert.strictEqual(value2, 77, "The two models are in sync on a single property");
-        //             done();
-        //         })});
-        //     oModel.setProperty("/age", 77);
-        // });
+        // ======================================================================
+        QUnit.test("Test two models with same configuration are synced", function(assert) {
+            // Testing strategy:
+            // We set a listener on property /lifeAnswer of one model.
+            // We set the value of the same property on the other model.
+            // A correct implementation should propagate the change to the other model
+            // Eventually... Hence the async done() call.
+            var done = assert.async();
+            var oFirebase = oModel.getFirebase();
+            oFirebase.database().ref('/lifeAnswer').once('value').then(function(snapshot) {
+                setTimeout(function(){
+                    // The value has changed. Let's check via oModel2 if w get the same value
+                    var value2 = oModel2.getProperty("/lifeAnswer");
+                    assert.strictEqual(value2, 42, "The two models are in sync on a single property");
+                    done();
+                },10);
+            });
+            oModel.setProperty("/lifeAnswer", 42);
+        });
 
+
+        // ======================================================================
         QUnit.test("Test control bindings work", function(assert) {
             // Create 2 controls. Bind the property to the same model field.
             // Update one, read the value on the other
@@ -99,5 +105,14 @@ sap.ui.require(
                                oLabel2.getText(),
                                "Two controls bound to the same property see the same value");
         });
+
+
+        // ======================================================================
+        QUnit.test("Test a Component can be instantiated with a manifest pointing to FirebaseModel",
+                   function(assert) {
+                       var oComp = new sap.ui.core.ComponentContainer({
+						   name : "test.unit"
+					   })
+                   });
 	}
 );
