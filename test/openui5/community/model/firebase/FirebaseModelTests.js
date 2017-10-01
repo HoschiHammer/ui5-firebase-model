@@ -20,7 +20,7 @@ sap.ui.require(
         jQuery.sap.log.setLevel(jQuery.sap.log.LogLevel.ALL);
 
 		QUnit.module("Firebase Model Tests", {
-			beforeEach: function () {
+			setup: function () {
                 // Instruct Qunit to wait on the initialization...
                 var done = assert.async();
                 // Instantiate a model with null data.
@@ -34,11 +34,13 @@ sap.ui.require(
                     // TODO: Do something. Panic is acceptable
                 });
 
-                // Instantiate a second model with null data.
+                // Instantiate a second model with the same config.
                 oModel2 = new FirebaseModel(config);
+                // Clear the model where needed
+                oModel.setProperty("/TestSet", []);
                 setTimeout(function(){ // TODO: How to wait until both models initialized??
                     done();
-                }, 2000);
+                }, 4000);
 
 			},
 			afterEach: function () {
@@ -107,12 +109,44 @@ sap.ui.require(
         });
 
 
+
+
         // ======================================================================
-        QUnit.test("Test a Component can be instantiated with a manifest pointing to FirebaseModel",
+        QUnit.test("Test we can add items to a set via two models",
+                   // Testing strategy:
+                   // We add two items to /TestSet from 2 different models with
+                   // the same configuration. The test passes if at the end we have
+                   // two entities there.
                    function(assert) {
-                       var oComp = new sap.ui.core.ComponentContainer({
-						   name : "test.unit"
-					   })
+                       var CST_NAME1 = "Added from model1";
+                       var CST_NAME2 = "Added from model2";
+                       var done = assert.async();
+                       var oFirebase = oModel.getFirebase();
+                       var iFoundItems = 0;
+                       oFirebase.database().ref('/TestSet').on('value',
+                           function(snapshot) {
+                               var aTestSet = snapshot.val();
+                               snapshot.forEach(function(oItem){
+                                   var oValue = oItem.val();
+                                   assert.ok(
+                                       (oValue.name === CST_NAME1 || (oValue.name === CST_NAME2 )));
+                                   iFoundItems++;
+                               });
+                               // The first time we get called there may be only one
+                               if(iFoundItems === 2){
+                                   done();
+                               }
+                       });
+                       oModel.appendItem("/TestSet", {name: CST_NAME1});
+                       oModel2.appendItem("/TestSet", {name: CST_NAME2});
                    });
+        // ======================================================================
+        // QUnit.test("Test a Component can be instantiated with a manifest pointing to FirebaseModel",
+        //            function(assert) {
+        //                var oComp = new sap.ui.core.ComponentContainer({
+		// 	               name : "test.unit"
+		// 			   });
+        //                oComp.placeAt
+        //            });
 	}
 );
