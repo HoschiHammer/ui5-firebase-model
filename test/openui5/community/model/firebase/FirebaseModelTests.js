@@ -19,30 +19,35 @@ sap.ui.require(
 
         jQuery.sap.log.setLevel(jQuery.sap.log.LogLevel.ALL);
 
+        // Do some initialization before the tests
+        // Instantiate a model with null data.
+        oModel = new FirebaseModel(config);
+        // Login to the firebase db as anonymous
+        var firebase = oModel.getFirebase();
+        firebase.auth().signInAnonymously().catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // TODO: Do something. Panic is acceptable
+        });
+
+        // Instantiate a second model with the same config.
+        oModel2 = new FirebaseModel(config);
+
 		QUnit.module("Firebase Model Tests", {
-			setup: function () {
-                // Instruct Qunit to wait on the initialization...
-                var done = assert.async();
-                // Instantiate a model with null data.
-                oModel = new FirebaseModel(config);
-                // Login to the firebase db as anonymous
-                var firebase = oModel.getFirebase();
-                firebase.auth().signInAnonymously().catch(function(error) {
-                    // Handle Errors here.
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    // TODO: Do something. Panic is acceptable
-                });
+			// before: function () {
+            //     // Instruct Qunit to wait on the initialization...
+            //     var done = assert.async();
+            //     setTimeout(function(){ // TODO: How to wait until both models initialized??
+            //         done();
+            //     }, 4000);
 
-                // Instantiate a second model with the same config.
-                oModel2 = new FirebaseModel(config);
-                // Clear the model where needed
-                oModel.setProperty("/TestSet", []);
-                setTimeout(function(){ // TODO: How to wait until both models initialized??
-                    done();
-                }, 4000);
-
-			},
+			// },
+            beforeEach: function() {
+                // Clear values in firebase
+                firebase.database().ref('/TestSet').remove();
+                firebase.database().ref('/lifeAnswer').set(0);
+            },
 			afterEach: function () {
 			}
 		});
@@ -78,7 +83,7 @@ sap.ui.require(
                     var value2 = oModel2.getProperty("/lifeAnswer");
                     assert.strictEqual(value2, 42, "The two models are in sync on a single property");
                     done();
-                },10);
+                }, 4000);
             });
             oModel.setProperty("/lifeAnswer", 42);
         });
@@ -120,6 +125,7 @@ sap.ui.require(
                    function(assert) {
                        var CST_NAME1 = "Added from model1";
                        var CST_NAME2 = "Added from model2";
+                       assert.expect(2);
                        var done = assert.async();
                        var oFirebase = oModel.getFirebase();
                        var iFoundItems = 0;
@@ -132,14 +138,53 @@ sap.ui.require(
                                        (oValue.name === CST_NAME1 || (oValue.name === CST_NAME2 )));
                                    iFoundItems++;
                                });
-                               // The first time we get called there may be only one
-                               if(iFoundItems === 2){
-                                   done();
-                               }
+                               done();
                        });
                        oModel.appendItem("/TestSet", {name: CST_NAME1});
                        oModel2.appendItem("/TestSet", {name: CST_NAME2});
                    });
+
+
+        // ======================================================================
+        QUnit.test("Simulate multiple updates to the same property",
+                   // Testing strategy:
+                   // We'll set the same property in the model with an
+                   // increasing number, over and over, waiting some amout of time.
+                   // At the end we should have the last value there.
+                   function(assert) {
+                       assert.expect(10);
+                       let done = assert.async();
+                       let i = 0;
+                       var fTestSetProperty = function(i){
+                           if(i<10){
+                               setTimeout(function(){
+                                   oModel.setProperty("/lifeAnswer", i);
+                                   fTestSetProperty(i+1);
+                               }, 1000);
+                           }
+                       }
+                       // setup a listener on the firebase so we can track
+                       // what's going on.
+                       var oFirebase = oModel.getFirebase();
+                       var iUpdatesCounter = 0;
+                       var iLastValue = -1;
+                       oFirebase.database()
+                           .ref('/lifeAnswer')
+                           .on('value',
+                               function(snapshot) {
+                                   assert.strictEqual(snapshot.val(),
+                                                      iLastValue+1,
+                                                      "Got the right value");
+                                   iLastValue=snapshot.val();
+                                   iUpdatesCounter++;
+                                   if(iUpdatesCounter===10){
+                                       done();
+                                   }
+                               });
+                       fTestSetProperty(0);
+                   });
+
+
         // ======================================================================
         // QUnit.test("Test a Component can be instantiated with a manifest pointing to FirebaseModel",
         //            function(assert) {
