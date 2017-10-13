@@ -54,7 +54,7 @@ sap.ui.require(
 
 
         // ======================================================================
-        QUnit.test("Test setProperty retains the value", function(assert) {
+        QUnit.test("setProperty retains the value", function(assert) {
             // Read directly from firebase to make sure the data is there as well
             // This is async so we need to tell QUnit of this
             var done = assert.async();
@@ -69,7 +69,7 @@ sap.ui.require(
 
 
         // ======================================================================
-        QUnit.test("Test two models with same configuration are synced", function(assert) {
+        QUnit.test("Two models with same configuration are synced", function(assert) {
             // Testing strategy:
             // We set a listener on property /lifeAnswer of one model.
             // We set the value of the same property on the other model.
@@ -90,7 +90,7 @@ sap.ui.require(
 
 
         // ======================================================================
-        QUnit.test("Test control bindings work", function(assert) {
+        QUnit.test("A control binding works", function(assert) {
             // Create 2 controls. Bind the property to the same model field.
             // Update one, read the value on the other
             var oLabel1 = new sap.m.Label({
@@ -117,7 +117,7 @@ sap.ui.require(
 
 
         // ======================================================================
-        QUnit.test("Test we can add items to a set via two models",
+        QUnit.test("We can add items to a set via two models",
                    // Testing strategy:
                    // We add two items to /TestSet from 2 different models with
                    // the same configuration. The test passes if at the end we have
@@ -125,21 +125,29 @@ sap.ui.require(
                    function(assert) {
                        var CST_NAME1 = "Added from model1";
                        var CST_NAME2 = "Added from model2";
-                       assert.expect(2);
+                       // Expect 3 assertions as it runs when the first item is added
+                       // and then when the second is added, iterating on all of them
+                       // so 1 + 2
+                       assert.expect(3);
                        var done = assert.async();
+                       var doneNotCalled = true;
                        var oFirebase = oModel.getFirebase();
                        var iFoundItems = 0;
                        oFirebase.database().ref('/TestSet').on('value',
                            function(snapshot) {
                                var aTestSet = snapshot.val();
+                               iFoundItems = 0;
                                snapshot.forEach(function(oItem){
                                    var oValue = oItem.val();
                                    assert.ok(
                                        (oValue.name === CST_NAME1 || (oValue.name === CST_NAME2 )));
                                    iFoundItems++;
                                });
-                               done();
-                       });
+                               if (doneNotCalled && iFoundItems==2) {
+                                   done();
+                                   doneNotCalled = false;
+                               }
+                           });
                        oModel.appendItem("/TestSet", {name: CST_NAME1});
                        oModel2.appendItem("/TestSet", {name: CST_NAME2});
                    });
